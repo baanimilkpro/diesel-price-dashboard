@@ -327,18 +327,20 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Stats Footer - 4 columns in one row */
         .stats-footer {
             background: rgba(255,255,255,0.95);
             border-radius: 20px;
-            padding: 20px 25px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            padding: 25px 20px;
             margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
         }
 
         .stat-item {
             text-align: center;
+            padding: 10px;
         }
 
         .stat-value {
@@ -348,11 +350,12 @@
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #6c757d;
             text-transform: uppercase;
-            margin-top: 5px;
-            letter-spacing: 1px;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            word-break: keep-all;
         }
 
         .error-message {
@@ -376,11 +379,18 @@
             opacity: 0.5;
         }
 
+        @media (max-width: 1000px) {
+            .stats-footer {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr; }
             .price-value { font-size: 42px; }
             .price-table th, .price-table td { padding: 8px 10px; font-size: 12px; }
-            .stats-footer { grid-template-columns: 1fr; gap: 20px; }
+            .stats-footer { grid-template-columns: 1fr; gap: 15px; }
             .stat-value { font-size: 22px; }
             .section-header { flex-direction: column; gap: 15px; align-items: flex-start; }
         }
@@ -525,7 +535,6 @@
         let punjabData = new Map();
         let isLoading = false;
         let currentTableData = [];
-        let currentDisplayDate = null;
         
         // Set default dates (last 30 days)
         const today = new Date();
@@ -615,16 +624,11 @@
             }
             
             showError('', true);
-            currentDisplayDate = toDate;
             
-            // Display both state prices for the To Date
             displayDataForState('punjab', toDate, punjabData);
             displayDataForState('rajasthan', toDate, rajasthanData);
             
-            // Load date range table
             loadDateRangeTable(fromDate, toDate);
-            
-            // Update last month average
             updateLastMonthAverage(toDate);
         }
         
@@ -647,7 +651,6 @@
                 return;
             }
             
-            // Calculate trend comparing with previous day from the SAME state
             const prevDate = getPreviousDate(date);
             const prevData = dataMap.get(prevDate);
             let trendHtml = '';
@@ -717,7 +720,8 @@
                 if (punjabPrice && rajasthanPrice) {
                     const diff = Math.abs(punjabPrice - rajasthanPrice).toFixed(2);
                     diffDisplay = `₹${diff}`;
-                    cheaperDisplay = punjabPrice < rajasthanPrice ? 'Punjab ✓' : (rajasthanPrice < punjabPrice ? 'Rajasthan ✓' : 'Equal');
+                    // FIXED: No special characters in CSV - using simple text
+                    cheaperDisplay = punjabPrice < rajasthanPrice ? 'Punjab' : (rajasthanPrice < punjabPrice ? 'Rajasthan' : 'Equal');
                     cheaperClass = punjabPrice < rajasthanPrice ? 'price-down' : (rajasthanPrice < punjabPrice ? 'price-down' : '');
                 }
                 
@@ -727,7 +731,7 @@
                     punjabPrice: punjabPrice,
                     rajasthanPrice: rajasthanPrice,
                     difference: diffDisplay !== '—' ? parseFloat(diffDisplay.replace('₹', '')) : null,
-                    cheaperState: cheaperDisplay
+                    cheaperState: cheaperDisplay  // FIXED: No special characters
                 });
                 
                 rows += `
@@ -743,7 +747,6 @@
             
             tbody.innerHTML = rows;
             
-            // Calculate range averages for BOTH states
             const avgPunjabRange = punjabPricesInRange.length > 0 ? 
                 (punjabPricesInRange.reduce((a,b) => a+b, 0) / punjabPricesInRange.length).toFixed(2) : '—';
             const avgRajasthanRange = rajasthanPricesInRange.length > 0 ? 
@@ -753,8 +756,8 @@
             document.getElementById('rangeAvgRajasthan').innerHTML = avgRajasthanRange !== '—' ? `₹${avgRajasthanRange}` : '—';
             
             const daysCount = availableDates.length;
-            document.getElementById('rangeAvgPunjabLabel').innerHTML = `Range Avg Punjab (${daysCount} days)`;
-            document.getElementById('rangeAvgRajasthanLabel').innerHTML = `Range Avg Rajasthan (${daysCount} days)`;
+            document.getElementById('rangeAvgPunjabLabel').innerHTML = `Range Avg (${daysCount} days)`;
+            document.getElementById('rangeAvgRajasthanLabel').innerHTML = `Range Avg (${daysCount} days)`;
             
             const startDate = formatDisplayDate(availableDates[0]);
             const endDate = formatDisplayDate(availableDates[availableDates.length - 1]);
@@ -813,19 +816,21 @@
                 return;
             }
             
-            const headers = ['Date', 'Punjab Price (₹/L)', 'Rajasthan Price (₹/L)', 'Difference (₹)', 'Cheaper State'];
+            // CSV headers - simple English only, no special characters
+            const headers = ['Date', 'Punjab Price (Rs/L)', 'Rajasthan Price (Rs/L)', 'Difference (Rs)', 'Cheaper State'];
             
             const rows = currentTableData.map(item => [
                 item.fullDate,
                 item.punjabPrice ? item.punjabPrice.toFixed(2) : 'N/A',
                 item.rajasthanPrice ? item.rajasthanPrice.toFixed(2) : 'N/A',
                 item.difference ? item.difference.toFixed(2) : 'N/A',
-                item.cheaperState
+                item.cheaperState  // Already simple text: "Punjab", "Rajasthan", or "Equal"
             ]);
             
             const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
             
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            // Add BOM for UTF-8 to handle any special characters properly
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             
@@ -839,6 +844,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(url);
             
             showToast(`Downloaded ${currentTableData.length} records`, 'success');
         }
@@ -875,7 +881,7 @@
         function showToast(message, type) {
             const toast = document.createElement('div');
             toast.className = 'toast';
-            const icon = type === 'success' ? '✅' : '❌';
+            const icon = type === 'success' ? '✅' : 'ℹ️';
             toast.innerHTML = `${icon} ${message}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);

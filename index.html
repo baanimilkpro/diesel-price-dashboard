@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Diesel Price Dashboard | Rajasthan & Punjab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: #ffd700;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.15);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* Date Card */
+        .date-card {
+            background: rgba(255,255,255,0.98);
+            border-radius: 24px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .date-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #2c5364;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5364 0%, #203a43 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #2c5364;
+            border: 2px solid #e0e0e0;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Cards */
+        .state-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .state-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            padding: 25px 30px;
+        }
+
+        .rajasthan-header {
+            background: linear-gradient(135deg, #d4a373 0%, #faedcd 100%);
+        }
+
+        .punjab-header {
+            background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
+        }
+
+        .card-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .update-time {
+            font-size: 12px;
+            margin-top: 8px;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .card-content {
+            padding: 30px;
+        }
+
+        .price-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .price-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .price-value {
+            font-size: 56px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+
+        .price-unit {
+            font-size: 16px;
+            color: #6c757d;
+        }
+
+        .trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .trend-up { background: #fee2e2; color: #dc2626; }
+        .trend-down { background: #d1fae5; color: #059669; }
+        .trend-stable { background: #e0e7ff; color: #4f46e5; }
+
+        .image-section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .image-container {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #e0e0e0;
+        }
+
+        .fuel-station-img {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .no-image {
+            text-align: center;
+            color: #adb5bd;
+            padding: 40px;
+        }
+
+        .no-image i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #e0e0e0;
+            border-top-color: #2c5364;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-footer {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #2c5364;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .price-value { font-size: 42px; }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #2c3e50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-gas-pump"></i>
+                <h1>Diesel Price Dashboard</h1>
+            </div>
+            <div class="subtitle">
+                Real-time prices for Rajasthan & Punjab
+                <div class="badge"><i class="fas fa-sync-alt"></i> Updated daily from Google Sheets</div>
+            </div>
+        </div>
+
+        <div class="date-card">
+            <div class="date-controls">
+                <div class="input-group">
+                    <label><i class="far fa-calendar"></i> Select Date</label>
+                    <input type="date" id="dateSelector">
+                </div>
+                <button class="btn-primary" onclick="loadData()">
+                    <i class="fas fa-search"></i> View Details
+                </button>
+                <button class="btn-secondary" onclick="fetchLiveData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <!-- Rajasthan Card -->
+            <div class="state-card">
+                <div class="card-header rajasthan-header">
+                    <h2><i class="fas fa-mountain"></i> Rajasthan</h2>
+                    <div class="update-time" id="rajasthanUpdateTime">Loading...</div>
+                </div>
+                <div class="card-content" id="rajasthanContent">
+                    <div class="loading-state"><div class="spinner"></div><p>Loading...</p></div>
+                </div>
+            </div>
+
+            <!-- Punjab Card -->
+            <div class="state-card">
+                <div class="card-header punjab-header">
+                    <h2><i class="fas fa-tree"></i> Punjab</h2>
+                    <div class="update-time" id="punjabUpdateTime">Loading...</div>
+                </div>
+                <div class="card-content" id="punjabContent">
+                    <div class="loading-state"><div class="spinner"></div><p>Loading...</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-footer">
+            <div class="stat-item">
+                <div class="stat-value" id="priceCompare">--</div>
+                <div class="stat-label">Price Difference</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="cheaperState">--</div>
+                <div class="stat-label">Cheaper State</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="dataRange">--</div>
+                <div class="stat-label">Data Available</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="imageModal" onclick="closeModal()">
+        <img id="modalImage" src="" alt="Fuel Bill">
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION - UPDATE THESE 3 VALUES
+        // ============================================
+        
+        // STEP 1: Replace with your Google Apps Script Web App URL
+        const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbwbhZDJuXUJuMSYj_9swDSBem7ujuff5mvFkol0SrCFubx4YoS4V277kI57CQljTAovuw/exec';
+        
+        // STEP 2: Your sheet tab names exactly as they appear
+        const RAJASTHAN_TAB_NAME = 'Rajasthan';
+        const PUNJAB_TAB_NAME = 'Punjab';
+        
+        // STEP 3: Set to false when API is ready
+        const USE_SAMPLE_DATA = true;
+        
+        // ============================================
+        
+        let rajasthanData = new Map();
+        let punjabData = new Map();
+        
+        // Sample data for testing
+        const sampleRajasthan = {
+            "2026-03-30": 91.75, "2026-03-31": 91.75, "2026-04-01": 91.75,
+            "2026-04-02": 91.75, "2026-04-03": 91.75, "2026-04-04": 91.75,
+            "2026-04-05": 91.75, "2026-04-06": 91.75, "2026-04-07": 91.75,
+            "2026-04-08": 91.75, "2026-04-09": 91.75, "2026-04-10": 91.75,
+            "2026-04-11": 91.75, "2026-04-12": 91.75, "2026-04-13": 91.75,
+            "2026-04-14": 91.75, "2026-04-15": 91.75, "2026-04-16": 91.75,
+            "2026-04-17": 91.75, "2026-04-18": 91.75, "2026-04-19": 91.75,
+            "2026-04-20": 91.75, "2026-04-21": 91.75, "2026-04-22": 91.75,
+            "2026-04-23": 91.75, "2026-04-24": 91.75, "2026-04-25": 91.75
+        };
+        
+        const samplePunjab = {
+            "2026-03-30": 89.50, "2026-03-31": 89.50, "2026-04-01": 89.45,
+            "2026-04-02": 89.40, "2026-04-03": 89.35, "2026-04-04": 89.30,
+            "2026-04-05": 89.25, "2026-04-06": 89.20, "2026-04-07": 89.25,
+            "2026-04-08": 89.30, "2026-04-09": 89.35, "2026-04-10": 89.40,
+            "2026-04-11": 89.45, "2026-04-12": 89.50, "2026-04-13": 89.55,
+            "2026-04-14": 89.60, "2026-04-15": 89.65, "2026-04-16": 89.70,
+            "2026-04-17": 89.75, "2026-04-18": 89.80, "2026-04-19": 89.85,
+            "2026-04-20": 89.90, "2026-04-21": 89.95, "2026-04-22": 90.00,
+            "2026-04-23": 90.05, "2026-04-24": 90.10, "2026-04-25": 90.15
+        };
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateSelector').value = today;
+            
+            if (USE_SAMPLE_DATA) {
+                loadSampleData();
+            } else {
+                fetchLiveData();
+            }
+        });
+        
+        function loadSampleData() {
+            rajasthanData.clear();
+            punjabData.clear();
+            
+            for (const [date, price] of Object.entries(sampleRajasthan)) {
+                rajasthanData.set(date, { price: price, image: null });
+            }
+            for (const [date, price] of Object.entries(samplePunjab)) {
+                punjabData.set(date, { price: price, image: null });
+            }
+            
+            document.getElementById('rajasthanUpdateTime').innerHTML = '<i class="far fa-clock"></i> Sample data';
+            document.getElementById('punjabUpdateTime').innerHTML = '<i class="far fa-clock"></i> Sample data';
+            loadData();
+            showToast('Sample data loaded. Replace API URL for live data!', 'info');
+        }
+        
+        async function fetchLiveData() {
+            showToast('Fetching data from Google Sheets...', 'info');
+            try {
+                const response = await fetch(GOOGLE_SHEETS_API_URL);
+                const data = await response.json();
+                
+                rajasthanData.clear();
+                punjabData.clear();
+                
+                if (data.rajasthan) {
+                    data.rajasthan.forEach(item => {
+                        rajasthanData.set(item.date, { price: item.price, image: item.image });
+                    });
+                }
+                
+                if (data.punjab) {
+                    data.punjab.forEach(item => {
+                        punjabData.set(item.date, { price: item.price, image: item.image });
+                    });
+                }
+                
+                document.getElementById('rajasthanUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
+                document.getElementById('punjabUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
+                loadData();
+                showToast('Data loaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Failed to fetch data. Using sample data.', 'error');
+                loadSampleData();
+            }
+        }
+        
+        function loadData() {
+            const selectedDate = document.getElementById('dateSelector').value;
+            if (!selectedDate) return;
+            
+            displayDataForState('rajasthan', selectedDate, rajasthanData);
+            displayDataForState('punjab', selectedDate, punjabData);
+            updateStats(selectedDate);
+        }
+        
+        function displayDataForState(state, date, dataMap) {
+            const contentDiv = document.getElementById(`${state}Content`);
+            const data = dataMap.get(date);
+            
+            if (!data) {
+                contentDiv.innerHTML = `<div class="no-image"><i class="fas fa-database"></i><p>No data for ${date}</p></div>`;
+                return;
+            }
+            
+            // Calculate trend
+            const prevDate = getPreviousDate(date);
+            const prevData = dataMap.get(prevDate);
+            let trendHtml = '';
+            if (prevData) {
+                const diff = data.price - prevData.price;
+                if (diff > 0) trendHtml = `<span class="trend trend-up"><i class="fas fa-arrow-up"></i> +${diff.toFixed(2)}</span>`;
+                else if (diff < 0) trendHtml = `<span class="trend trend-down"><i class="fas fa-arrow-down"></i> ${diff.toFixed(2)}</span>`;
+                else trendHtml = `<span class="trend trend-stable"><i class="fas fa-equals"></i> Same as yesterday</span>`;
+            }
+            
+            const imageHtml = data.image ? 
+                `<img src="${data.image}" class="fuel-station-img" onclick="openModal('${data.image}')" onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><p>Image failed to load</p></div>'">` :
+                `<div class="no-image"><i class="fas fa-receipt"></i><p>No bill/picture uploaded</p></div>`;
+            
+            contentDiv.innerHTML = `
+                <div class="price-section">
+                    <div class="price-label">Diesel Price</div>
+                    <div class="price-value">₹${data.price.toFixed(2)}</div>
+                    <div class="price-unit">per litre</div>
+                    ${trendHtml}
+                </div>
+                <div class="image-section">
+                    <h4><i class="fas fa-camera"></i> Fuel Station Bill/Picture</h4>
+                    <div class="image-container">${imageHtml}</div>
+                </div>
+            `;
+        }
+        
+        function updateStats(selectedDate) {
+            const rajasthanPrice = rajasthanData.get(selectedDate)?.price;
+            const punjabPrice = punjabData.get(selectedDate)?.price;
+            
+            if (rajasthanPrice && punjabPrice) {
+                const diff = Math.abs(rajasthanPrice - punjabPrice).toFixed(2);
+                document.getElementById('priceCompare').innerHTML = `₹${diff}`;
+                const cheaper = rajasthanPrice < punjabPrice ? 'Rajasthan 🏜️' : (punjabPrice < rajasthanPrice ? 'Punjab 🌾' : 'Equal ⚖️');
+                document.getElementById('cheaperState').innerHTML = cheaper;
+            }
+            
+            const allDates = [...new Set([...rajasthanData.keys(), ...punjabData.keys()])].sort();
+            if (allDates.length > 0) {
+                document.getElementById('dataRange').innerHTML = `${allDates[0]} to ${allDates[allDates.length-1]}`;
+            }
+        }
+        
+        function getPreviousDate(dateStr) {
+            const date = new Date(dateStr);
+            date.setDate(date.getDate() - 1);
+            return date.toISOString().split('T')[0];
+        }
+        
+        function openModal(imageUrl) {
+            document.getElementById('imageModal').style.display = 'flex';
+            document.getElementById('modalImage').src = imageUrl;
+        }
+        
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+        
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `ℹ️ ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

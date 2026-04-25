@@ -1,0 +1,37 @@
+
+## Step-by-Step Deployment Process
+
+### Step 1: Create Google Apps Script API (10 minutes)
+
+**For Rajasthan Sheet:**
+1. Open your Rajasthan Google Sheet
+2. Click **Extensions** → **Apps Script**
+3. Delete default code and paste this:
+
+```javascript
+function doGet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const data = sheet.getDataRange().getValues();
+  const result = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    const date = row[0] instanceof Date ? row[0].toISOString().split('T')[0] : row[0];
+    const price = parseFloat(row[1]);
+    let imageUrl = null;
+    
+    const cellValue = row[2];
+    if (cellValue && typeof cellValue === 'string') {
+      const match = cellValue.match(/=IMAGE\("([^"]+)"\)/);
+      if (match) imageUrl = match[1];
+      else if (cellValue.startsWith('http')) imageUrl = cellValue;
+    }
+    
+    if (date && !isNaN(price)) {
+      result.push({ date: date, price: price, image: imageUrl });
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}

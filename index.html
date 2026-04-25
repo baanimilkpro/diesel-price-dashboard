@@ -267,7 +267,6 @@
             margin-bottom: 15px;
         }
 
-        /* Last 7 Days Table */
         .history-section {
             background: white;
             border-radius: 24px;
@@ -323,10 +322,6 @@
         .price-down {
             color: #059669;
             font-weight: 600;
-        }
-
-        .price-same {
-            color: #6c757d;
         }
 
         .loading-state {
@@ -460,7 +455,6 @@
         <div id="errorMessage" style="display:none;" class="error-message"></div>
 
         <div class="dashboard">
-            <!-- Punjab Card (Left Side) -->
             <div class="state-card">
                 <div class="card-header punjab-header">
                     <h2><i class="fas fa-tree"></i> Punjab</h2>
@@ -471,7 +465,6 @@
                 </div>
             </div>
 
-            <!-- Rajasthan Card (Right Side) -->
             <div class="state-card">
                 <div class="card-header rajasthan-header">
                     <h2><i class="fas fa-mountain"></i> Rajasthan</h2>
@@ -483,7 +476,6 @@
             </div>
         </div>
 
-        <!-- Last 7 Days History Table -->
         <div class="history-section">
             <h3><i class="fas fa-chart-line"></i> Last 7 Days Price History</h3>
             <div class="history-table-wrapper">
@@ -529,19 +521,16 @@
         // CONFIGURATION - UPDATE WITH YOUR APPS SCRIPT URL
         // ============================================
         
-        // STEP 1: Replace with your Google Apps Script Web App URL
         const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbwbhZDJuXUJuMSYj_9swDSBem7ujuff5mvFkol0SrCFubx4YoS4V277kI57CQljTAovuw/exec';
         
         // ============================================
         
-        let rajasthanData = new Map();  // Stores {date: {price, image}}
-        let punjabData = new Map();     // Stores {date: {price, image}}
+        let rajasthanData = new Map();
+        let punjabData = new Map();
         let isLoading = false;
         
-        // Set today's date as default
         document.getElementById('dateSelector').value = new Date().toISOString().split('T')[0];
         
-        // Load data on page load
         document.addEventListener('DOMContentLoaded', function() {
             fetchLiveData();
         });
@@ -562,50 +551,46 @@
                 
                 const data = await response.json();
                 
-                // Clear existing data
                 rajasthanData.clear();
                 punjabData.clear();
-                
-                // Load Rajasthan data
-                if (data.rajasthan && Array.isArray(data.rajasthan)) {
-                    data.rajasthan.forEach(item => {
-                        rajasthanData.set(item.date, {
-                            price: item.price,
-                            image: item.image
-                        });
-                    });
-                    document.getElementById('rajasthanUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
-                } else {
-                    throw new Error('Rajasthan data not found in API response');
-                }
                 
                 // Load Punjab data
                 if (data.punjab && Array.isArray(data.punjab)) {
                     data.punjab.forEach(item => {
                         punjabData.set(item.date, {
                             price: item.price,
-                            image: item.image
+                            image: (typeof item.image === 'string' && item.image.startsWith('http')) ? item.image : null
                         });
                     });
                     document.getElementById('punjabUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
                 } else {
-                    throw new Error('Punjab data not found in API response');
+                    console.warn('Punjab data not found');
                 }
                 
-                // Check if data is empty
+                // Load Rajasthan data
+                if (data.rajasthan && Array.isArray(data.rajasthan)) {
+                    data.rajasthan.forEach(item => {
+                        rajasthanData.set(item.date, {
+                            price: item.price,
+                            image: (typeof item.image === 'string' && item.image.startsWith('http')) ? item.image : null
+                        });
+                    });
+                    document.getElementById('rajasthanUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
+                } else {
+                    console.warn('Rajasthan data not found');
+                }
+                
                 if (rajasthanData.size === 0 && punjabData.size === 0) {
-                    throw new Error('No data found in Google Sheet. Please check your sheet has data in columns A (Date), B (Price), and proper tab names.');
+                    throw new Error('No data found. Check sheet has tabs "Punjab" and "Rajasthan" with data in columns A (Date) and B (Price).');
                 }
                 
                 showToast(`Loaded ${punjabData.size} Punjab records & ${rajasthanData.size} Rajasthan records`, 'success');
-                
-                // Load the selected date data
                 loadData();
                 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                showError(`Failed to load data: ${error.message}. Please check:\n1. Apps Script is deployed\n2. Sheet has tabs named 'Punjab' and 'Rajasthan'\n3. Data exists in columns A (Date) and B (Price)`, false);
-                showToast('Failed to load data. Check console for details.', 'error');
+                showError(`Failed to load data: ${error.message}`, false);
+                showToast('Failed to load data. Check console.', 'error');
             } finally {
                 isLoading = false;
             }
@@ -626,14 +611,9 @@
             
             showError('', true);
             
-            // Display data for both states
             displayDataForState('punjab', selectedDate, punjabData);
             displayDataForState('rajasthan', selectedDate, rajasthanData);
-            
-            // Load last 7 days history
             loadLast7DaysHistory(selectedDate);
-            
-            // Update stats footer
             updateStatsFooter(selectedDate);
         }
         
@@ -652,7 +632,7 @@
                 return;
             }
             
-            // Calculate trend (compare with previous day)
+            // Calculate trend
             const prevDate = getPreviousDate(date);
             const prevData = dataMap.get(prevDate);
             let trendHtml = '';
@@ -667,14 +647,19 @@
                 }
             }
             
-            // Image section - VLOOKUP equivalent (fetches image for selected date)
-            const imageHtml = data.image ? 
-                `<img src="${data.image}" class="fuel-station-img" onclick="openModal('${data.image}')" onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><p>Image failed to load<br><small>URL: ${data.image.substring(0, 50)}...</small></p></div>'">` :
-                `<div class="no-image">
+            // FIXED: Safe image handling
+            let imageHtml = '';
+            const imageUrl = (data.image && typeof data.image === 'string' && data.image.startsWith('http')) ? data.image : null;
+            
+            if (imageUrl) {
+                imageHtml = `<img src="${imageUrl}" class="fuel-station-img" onclick="openModal('${imageUrl}')" onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><p>Image failed to load</p></div>'">`;
+            } else {
+                imageHtml = `<div class="no-image">
                     <i class="fas fa-receipt"></i>
                     <p>No bill/picture uploaded for ${date}</p>
                     <small>Add image URL in Column C of your Google Sheet</small>
                 </div>`;
+            }
             
             contentDiv.innerHTML = `
                 <div class="price-section">
@@ -695,11 +680,6 @@
         function loadLast7DaysHistory(selectedDate) {
             const dates = getLast7Days(selectedDate);
             const tbody = document.getElementById('historyTableBody');
-            
-            if (dates.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No date range available</td></tr>';
-                return;
-            }
             
             let rows = '';
             
@@ -724,8 +704,8 @@
                 rows += `
                     <tr>
                         <td><strong>${formatDisplayDate(date)}</strong></td>
-                        <td class="${punjabPrice ? (punjabPrice < (rajasthanPrice || 0) ? 'price-down' : '') : ''}">${punjabDisplay}</td>
-                        <td class="${rajasthanPrice ? (rajasthanPrice < (punjabPrice || 0) ? 'price-down' : '') : ''}">${rajasthanDisplay}</td>
+                        <td class="${punjabPrice && rajasthanPrice && punjabPrice < rajasthanPrice ? 'price-down' : ''}">${punjabDisplay}</td>
+                        <td class="${punjabPrice && rajasthanPrice && rajasthanPrice < punjabPrice ? 'price-down' : ''}">${rajasthanDisplay}</td>
                         <td>${diffDisplay}</td>
                         <td>${cheaperDisplay}</td>
                     </tr>
@@ -755,13 +735,11 @@
             document.getElementById('avgPunjab').innerHTML = avgPunjab !== '—' ? `₹${avgPunjab}` : '—';
             document.getElementById('avgRajasthan').innerHTML = avgRajasthan !== '—' ? `₹${avgRajasthan}` : '—';
             
-            // Calculate savings for 100 litres
             const currentPunjab = punjabData.get(selectedDate)?.price;
             const currentRajasthan = rajasthanData.get(selectedDate)?.price;
             
             if (currentPunjab && currentRajasthan) {
                 const diff = Math.abs(currentPunjab - currentRajasthan);
-                const cheaper = Math.min(currentPunjab, currentRajasthan);
                 const savings = (diff * 100).toFixed(2);
                 document.getElementById('savings').innerHTML = `₹${savings}`;
             } else {
@@ -807,8 +785,10 @@
         function openModal(imageUrl) {
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
-            modal.style.display = 'flex';
-            modalImg.src = imageUrl;
+            if (imageUrl && typeof imageUrl === 'string') {
+                modal.style.display = 'flex';
+                modalImg.src = imageUrl;
+            }
         }
         
         function closeModal() {

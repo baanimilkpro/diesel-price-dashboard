@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Diesel Price Dashboard | Punjab & Rajasthan</title>
+    <title>Baani Diesel Price Dashboard | Punjab & Rajasthan</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -57,8 +57,11 @@
         }
 
         .subtitle {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.9);
             font-size: 14px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
         }
 
         .badge {
@@ -171,6 +174,12 @@
             display: flex;
             align-items: center;
             gap: 12px;
+        }
+
+        .card-header h2 small {
+            font-size: 14px;
+            font-weight: normal;
+            opacity: 0.9;
         }
 
         .update-time {
@@ -348,9 +357,9 @@
             border-radius: 20px;
             padding: 20px 25px;
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 40px;
             margin-top: 20px;
         }
 
@@ -359,7 +368,7 @@
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 800;
             color: #2c5364;
         }
@@ -369,6 +378,7 @@
             color: #6c757d;
             text-transform: uppercase;
             margin-top: 5px;
+            letter-spacing: 1px;
         }
 
         .modal {
@@ -404,6 +414,8 @@
             .dashboard { grid-template-columns: 1fr; }
             .price-value { font-size: 42px; }
             .history-table th, .history-table td { padding: 8px 10px; font-size: 12px; }
+            .stats-footer { gap: 20px; }
+            .stat-value { font-size: 22px; }
         }
 
         .toast {
@@ -429,10 +441,10 @@
         <div class="header">
             <div class="logo">
                 <i class="fas fa-gas-pump"></i>
-                <h1>Diesel Price Dashboard</h1>
+                <h1>Baani Diesel Price Dashboard</h1>
             </div>
             <div class="subtitle">
-                Real-time prices for Punjab & Rajasthan
+                Date-Wise Diesel Price For Punjab (Patiala) & Rajasthan (Hanumangarh) update by Baani MIS Team
                 <div class="badge"><i class="fas fa-sync-alt"></i> Live from Google Sheets</div>
             </div>
         </div>
@@ -457,7 +469,7 @@
         <div class="dashboard">
             <div class="state-card">
                 <div class="card-header punjab-header">
-                    <h2><i class="fas fa-tree"></i> Punjab</h2>
+                    <h2><i class="fas fa-tree"></i> Punjab <small>(Patiala)</small></h2>
                     <div class="update-time" id="punjabUpdateTime">Loading...</div>
                 </div>
                 <div class="card-content" id="punjabContent">
@@ -467,7 +479,7 @@
 
             <div class="state-card">
                 <div class="card-header rajasthan-header">
-                    <h2><i class="fas fa-mountain"></i> Rajasthan</h2>
+                    <h2><i class="fas fa-mountain"></i> Rajasthan <small>(Hanumangarh)</small></h2>
                     <div class="update-time" id="rajasthanUpdateTime">Loading...</div>
                 </div>
                 <div class="card-content" id="rajasthanContent">
@@ -483,8 +495,8 @@
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Punjab Price (₹/L)</th>
-                            <th>Rajasthan Price (₹/L)</th>
+                            <th>Punjab (Patiala) Price (₹/L)</th>
+                            <th>Rajasthan (Hanumangarh) Price (₹/L)</th>
                             <th>Difference</th>
                             <th>Cheaper State</th>
                         </tr>
@@ -499,15 +511,11 @@
         <div class="stats-footer">
             <div class="stat-item">
                 <div class="stat-value" id="avgPunjab">--</div>
-                <div class="stat-label">Punjab 7-Day Avg</div>
+                <div class="stat-label">Punjab Last Month Average</div>
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="avgRajasthan">--</div>
-                <div class="stat-label">Rajasthan 7-Day Avg</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="savings">--</div>
-                <div class="stat-label">Potential Savings (100L)</div>
+                <div class="stat-label">Rajasthan Last Month Average</div>
             </div>
         </div>
     </div>
@@ -563,8 +571,6 @@
                         });
                     });
                     document.getElementById('punjabUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
-                } else {
-                    console.warn('Punjab data not found');
                 }
                 
                 // Load Rajasthan data
@@ -576,12 +582,10 @@
                         });
                     });
                     document.getElementById('rajasthanUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
-                } else {
-                    console.warn('Rajasthan data not found');
                 }
                 
                 if (rajasthanData.size === 0 && punjabData.size === 0) {
-                    throw new Error('No data found. Check sheet has tabs "Punjab" and "Rajasthan" with data in columns A (Date) and B (Price).');
+                    throw new Error('No data found. Check sheet has tabs "Punjab" and "Rajasthan" with data.');
                 }
                 
                 showToast(`Loaded ${punjabData.size} Punjab records & ${rajasthanData.size} Rajasthan records`, 'success');
@@ -614,7 +618,7 @@
             displayDataForState('punjab', selectedDate, punjabData);
             displayDataForState('rajasthan', selectedDate, rajasthanData);
             loadLast7DaysHistory(selectedDate);
-            updateStatsFooter(selectedDate);
+            updateLastMonthAverage(selectedDate);
         }
         
         function displayDataForState(state, date, dataMap) {
@@ -647,17 +651,44 @@
                 }
             }
             
-            // FIXED: Safe image handling
+            // FIXED: Safe image handling - tries multiple URL formats
             let imageHtml = '';
-            const imageUrl = (data.image && typeof data.image === 'string' && data.image.startsWith('http')) ? data.image : null;
+            let imageUrl = null;
+            
+            if (data.image && typeof data.image === 'string') {
+                // Clean the URL (remove any formula remnants)
+                let cleanUrl = data.image.trim();
+                
+                // Extract URL from =IMAGE() if present
+                if (cleanUrl.includes('=IMAGE')) {
+                    const match = cleanUrl.match(/=IMAGE\("([^"]+)"\)/);
+                    if (match && match[1]) {
+                        cleanUrl = match[1];
+                    }
+                }
+                
+                // Extract URL from VLOOKUP result if it contains HTTP
+                if (cleanUrl.includes('http')) {
+                    const httpMatch = cleanUrl.match(/(https?:\/\/[^\s"']+)/);
+                    if (httpMatch) {
+                        cleanUrl = httpMatch[1];
+                    }
+                }
+                
+                // Validate URL
+                if (cleanUrl.startsWith('http')) {
+                    imageUrl = cleanUrl;
+                }
+            }
             
             if (imageUrl) {
-                imageHtml = `<img src="${imageUrl}" class="fuel-station-img" onclick="openModal('${imageUrl}')" onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><p>Image failed to load</p></div>'">`;
+                imageHtml = `<img src="${imageUrl}" class="fuel-station-img" onclick="openModal('${imageUrl}')" onerror="console.log('Image failed:', this.src); this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><p>Image failed to load<br><small>Please check URL in Column C</small></p></div>'">`;
             } else {
                 imageHtml = `<div class="no-image">
                     <i class="fas fa-receipt"></i>
                     <p>No bill/picture uploaded for ${date}</p>
                     <small>Add image URL in Column C of your Google Sheet</small>
+                    <br><small>Format: https://example.com/image.jpg</small>
                 </div>`;
             }
             
@@ -715,36 +746,45 @@
             tbody.innerHTML = rows;
         }
         
-        function updateStatsFooter(selectedDate) {
-            const dates = getLast7Days(selectedDate);
+        function updateLastMonthAverage(selectedDate) {
+            // Get previous month from selected date
+            const currentDate = new Date(selectedDate);
+            const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+            const lastMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+            
+            const lastMonthYear = lastMonth.getFullYear();
+            const lastMonthMonth = lastMonth.getMonth();
             
             let punjabPrices = [];
             let rajasthanPrices = [];
             
-            for (const date of dates) {
-                const punjab = punjabData.get(date);
-                const rajasthan = rajasthanData.get(date);
-                
-                if (punjab) punjabPrices.push(punjab.price);
-                if (rajasthan) rajasthanPrices.push(rajasthan.price);
+            // Iterate through all data and filter for last month
+            for (const [date, data] of punjabData) {
+                const dateObj = new Date(date);
+                if (dateObj.getFullYear() === lastMonthYear && dateObj.getMonth() === lastMonthMonth) {
+                    punjabPrices.push(data.price);
+                }
+            }
+            
+            for (const [date, data] of rajasthanData) {
+                const dateObj = new Date(date);
+                if (dateObj.getFullYear() === lastMonthYear && dateObj.getMonth() === lastMonthMonth) {
+                    rajasthanPrices.push(data.price);
+                }
             }
             
             const avgPunjab = punjabPrices.length > 0 ? (punjabPrices.reduce((a,b) => a+b, 0) / punjabPrices.length).toFixed(2) : '—';
             const avgRajasthan = rajasthanPrices.length > 0 ? (rajasthanPrices.reduce((a,b) => a+b, 0) / rajasthanPrices.length).toFixed(2) : '—';
             
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthLabel = monthNames[lastMonthMonth];
+            
             document.getElementById('avgPunjab').innerHTML = avgPunjab !== '—' ? `₹${avgPunjab}` : '—';
             document.getElementById('avgRajasthan').innerHTML = avgRajasthan !== '—' ? `₹${avgRajasthan}` : '—';
             
-            const currentPunjab = punjabData.get(selectedDate)?.price;
-            const currentRajasthan = rajasthanData.get(selectedDate)?.price;
-            
-            if (currentPunjab && currentRajasthan) {
-                const diff = Math.abs(currentPunjab - currentRajasthan);
-                const savings = (diff * 100).toFixed(2);
-                document.getElementById('savings').innerHTML = `₹${savings}`;
-            } else {
-                document.getElementById('savings').innerHTML = '—';
-            }
+            // Update the label with month name
+            document.querySelector('#avgPunjab').parentElement.querySelector('.stat-label').innerHTML = `Punjab ${monthLabel} ${lastMonthYear} Average`;
+            document.querySelector('#avgRajasthan').parentElement.querySelector('.stat-label').innerHTML = `Rajasthan ${monthLabel} ${lastMonthYear} Average`;
         }
         
         function getLast7Days(selectedDate) {

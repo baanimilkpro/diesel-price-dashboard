@@ -87,7 +87,7 @@
 
         .input-group {
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
         }
 
         .input-group label {
@@ -131,6 +131,10 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
 
         .dashboard {
@@ -193,7 +197,7 @@
         .price-section {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border-radius: 20px;
-            padding: 25px;
+            padding: 35px 25px;
             text-align: center;
         }
 
@@ -232,7 +236,6 @@
         .trend-down { background: #d1fae5; color: #059669; }
         .trend-stable { background: #e0e7ff; color: #4f46e5; }
 
-        /* Date Range Table */
         .range-section {
             background: white;
             border-radius: 24px;
@@ -241,14 +244,39 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
         .range-section h3 {
             font-size: 20px;
             font-weight: 700;
             color: #2c3e50;
-            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            background: #218838;
         }
 
         .table-wrapper {
@@ -365,6 +393,7 @@
             .price-table th, .price-table td { padding: 8px 10px; font-size: 12px; }
             .stats-footer { gap: 20px; }
             .stat-value { font-size: 22px; }
+            .section-header { flex-direction: column; gap: 15px; align-items: flex-start; }
         }
 
         .toast {
@@ -386,7 +415,7 @@
 
         .range-badge {
             background: #e8f4f8;
-            padding: 8px 15px;
+            padding: 10px 15px;
             border-radius: 20px;
             font-size: 13px;
             color: #2c5364;
@@ -404,7 +433,6 @@
             </div>
             <div class="subtitle">
                 Updated by Baani MIS Team
-                <div class="badge"><i class="fas fa-sync-alt"></i> Live from Google Sheets</div>
             </div>
         </div>
 
@@ -417,13 +445,6 @@
                 <div class="input-group">
                     <label><i class="far fa-calendar-alt"></i> To Date</label>
                     <input type="date" id="toDate">
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-chart-line"></i> View Type</label>
-                    <select id="viewType">
-                        <option value="single">Single Date View</option>
-                        <option value="range" selected>Date Range View</option>
-                    </select>
                 </div>
                 <button class="btn-primary" onclick="loadData()">
                     <i class="fas fa-search"></i> View
@@ -440,7 +461,6 @@
             <div class="state-card">
                 <div class="card-header punjab-header">
                     <h2><i class="fas fa-tree"></i> Punjab <small>(Patiala)</small></h2>
-                    <div class="update-time" id="punjabUpdateTime">Loading...</div>
                 </div>
                 <div class="card-content" id="punjabContent">
                     <div class="loading-state"><div class="spinner"></div><p>Loading data...</p></div>
@@ -450,7 +470,6 @@
             <div class="state-card">
                 <div class="card-header rajasthan-header">
                     <h2><i class="fas fa-mountain"></i> Rajasthan <small>(Hanumangarh)</small></h2>
-                    <div class="update-time" id="rajasthanUpdateTime">Loading...</div>
                 </div>
                 <div class="card-content" id="rajasthanContent">
                     <div class="loading-state"><div class="spinner"></div><p>Loading data...</p></div>
@@ -459,7 +478,12 @@
         </div>
 
         <div class="range-section">
-            <h3><i class="fas fa-table"></i> Price History <span id="dateRangeLabel">(Select date range above)</span></h3>
+            <div class="section-header">
+                <h3><i class="fas fa-table"></i> Price History</h3>
+                <button class="download-btn" onclick="downloadCSV()">
+                    <i class="fas fa-download"></i> Download CSV
+                </button>
+            </div>
             <div class="table-wrapper">
                 <table class="price-table" id="priceTable">
                     <thead>
@@ -507,6 +531,7 @@
         let rajasthanData = new Map();
         let punjabData = new Map();
         let isLoading = false;
+        let currentTableData = []; // Store current table data for CSV download
         
         // Set default dates (last 30 days)
         const today = new Date();
@@ -564,12 +589,8 @@
                 // Find latest common date
                 const latestDate = findLatestCommonDate();
                 if (latestDate) {
-                    document.getElementById('fromDate').value = getDateString(thirtyDaysAgo);
                     document.getElementById('toDate').value = latestDate;
                 }
-                
-                document.getElementById('punjabUpdateTime').innerHTML = `<i class="far fa-clock"></i> ${punjabData.size} records`;
-                document.getElementById('rajasthanUpdateTime').innerHTML = `<i class="far fa-clock"></i> ${rajasthanData.size} records`;
                 
                 showToast(`Loaded ${punjabData.size} Punjab & ${rajasthanData.size} Rajasthan records`, 'success');
                 loadData();
@@ -592,12 +613,7 @@
             return punjabDates[0] || null;
         }
         
-        function getDateString(date) {
-            return date.toISOString().split('T')[0];
-        }
-        
         function loadData() {
-            const viewType = document.getElementById('viewType').value;
             const fromDate = document.getElementById('fromDate').value;
             const toDate = document.getElementById('toDate').value;
             
@@ -613,22 +629,15 @@
             
             showError('', true);
             
-            if (viewType === 'single') {
-                // Show single date view
-                displaySingleDateView(toDate);
-                loadDateRangeTable(fromDate, toDate);
-            } else {
-                // Show range in cards (latest date in range)
-                displaySingleDateView(toDate);
-                loadDateRangeTable(fromDate, toDate);
-            }
+            // Display both state prices for the To Date (latest in range)
+            displayDataForState('punjab', toDate, punjabData);
+            displayDataForState('rajasthan', toDate, rajasthanData);
             
+            // Load date range table
+            loadDateRangeTable(fromDate, toDate);
+            
+            // Update last month average
             updateLastMonthAverage(toDate);
-        }
-        
-        function displaySingleDateView(date, stateName) {
-            displayDataForState('punjab', date, punjabData);
-            displayDataForState('rajasthan', date, rajasthanData);
         }
         
         function displayDataForState(state, date, dataMap) {
@@ -685,12 +694,14 @@
                 tbody.innerHTML = '<tr><td colspan="5" class="no-data"><i class="fas fa-database"></i><br>No data available in selected range</td></tr>';
                 document.getElementById('rangeSummary').innerHTML = 'No data found for selected date range';
                 document.getElementById('rangeAvgPunjab').innerHTML = '—';
+                currentTableData = [];
                 return;
             }
             
             let rows = '';
             let punjabPricesInRange = [];
             let rajasthanPricesInRange = [];
+            currentTableData = [];
             
             for (const date of availableDates) {
                 const punjab = punjabData.get(date);
@@ -714,6 +725,16 @@
                     cheaperDisplay = punjabPrice < rajasthanPrice ? 'Punjab ✓' : (rajasthanPrice < punjabPrice ? 'Rajasthan ✓' : 'Equal');
                     cheaperClass = punjabPrice < rajasthanPrice ? 'price-down' : (rajasthanPrice < punjabPrice ? 'price-down' : '');
                 }
+                
+                // Store for CSV
+                currentTableData.push({
+                    date: formatDisplayDate(date),
+                    fullDate: date,
+                    punjabPrice: punjabPrice,
+                    rajasthanPrice: rajasthanPrice,
+                    difference: diffDisplay !== '—' ? parseFloat(diffDisplay.replace('₹', '')) : null,
+                    cheaperState: cheaperDisplay
+                });
                 
                 rows += `
                     <tr>
@@ -741,7 +762,6 @@
             const startDate = formatDisplayDate(availableDates[0]);
             const endDate = formatDisplayDate(availableDates[availableDates.length - 1]);
             document.getElementById('rangeSummary').innerHTML = `Showing ${availableDates.length} days from ${startDate} to ${endDate}`;
-            document.getElementById('dateRangeLabel').innerHTML = `(${availableDates.length} records)`;
         }
         
         function getAllDatesInRange(fromDate, toDate) {
@@ -790,6 +810,46 @@
             document.querySelector('#avgRajasthan').parentElement.querySelector('.stat-label').innerHTML = `Rajasthan ${monthLabel} ${lastMonthYear} Avg`;
         }
         
+        function downloadCSV() {
+            if (currentTableData.length === 0) {
+                showToast('No data to download. Select a date range first.', 'error');
+                return;
+            }
+            
+            // CSV headers
+            const headers = ['Date', 'Punjab Price (₹/L)', 'Rajasthan Price (₹/L)', 'Difference (₹)', 'Cheaper State'];
+            
+            // CSV rows
+            const rows = currentTableData.map(item => [
+                item.fullDate,
+                item.punjabPrice ? item.punjabPrice.toFixed(2) : 'N/A',
+                item.rajasthanPrice ? item.rajasthanPrice.toFixed(2) : 'N/A',
+                item.difference ? item.difference.toFixed(2) : 'N/A',
+                item.cheaperState
+            ]);
+            
+            // Combine headers and rows
+            const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const filename = `diesel_prices_${fromDate}_to_${toDate}.csv`;
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast(`Downloaded ${currentTableData.length} records`, 'success');
+        }
+        
         function getPreviousDate(dateStr) {
             const date = new Date(dateStr);
             date.setDate(date.getDate() - 1);
@@ -817,7 +877,8 @@
         function showToast(message, type) {
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.innerHTML = `ℹ️ ${message}`;
+            const icon = type === 'success' ? '✅' : '❌';
+            toast.innerHTML = `${icon} ${message}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }

@@ -59,9 +59,6 @@
         .subtitle {
             color: rgba(255,255,255,0.9);
             font-size: 14px;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.5;
         }
 
         .badge {
@@ -81,9 +78,9 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
 
-        .date-controls {
+        .date-range-group {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
             align-items: flex-end;
         }
@@ -103,7 +100,7 @@
             margin-bottom: 8px;
         }
 
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -112,7 +109,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .input-group input:focus {
+        .input-group input:focus, .input-group select:focus {
             outline: none;
             border-color: #2c5364;
         }
@@ -131,9 +128,9 @@
             gap: 8px;
         }
 
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .dashboard {
@@ -198,7 +195,6 @@
             border-radius: 20px;
             padding: 25px;
             text-align: center;
-            margin-bottom: 25px;
         }
 
         .price-label {
@@ -225,7 +221,7 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            margin-top: 10px;
+            margin-top: 15px;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 13px;
@@ -236,47 +232,8 @@
         .trend-down { background: #d1fae5; color: #059669; }
         .trend-stable { background: #e0e7ff; color: #4f46e5; }
 
-        .image-section h4 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .image-container {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed #e0e0e0;
-        }
-
-        .fuel-station-img {
-            max-width: 100%;
-            max-height: 350px;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .no-image {
-            text-align: center;
-            color: #adb5bd;
-            padding: 40px;
-        }
-
-        .no-image i {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .history-section {
+        /* Date Range Table */
+        .range-section {
             background: white;
             border-radius: 24px;
             padding: 25px;
@@ -284,7 +241,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        .history-section h3 {
+        .range-section h3 {
             font-size: 20px;
             font-weight: 700;
             color: #2c3e50;
@@ -294,38 +251,38 @@
             gap: 10px;
         }
 
-        .history-table-wrapper {
+        .table-wrapper {
             overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
         }
 
-        .history-table {
+        .price-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
         }
 
-        .history-table th {
+        .price-table th {
             background: #f8f9fa;
             padding: 12px 15px;
             text-align: center;
             font-weight: 600;
             color: #2c5364;
             border-bottom: 2px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
         }
 
-        .history-table td {
+        .price-table td {
             padding: 12px 15px;
             text-align: center;
             border-bottom: 1px solid #e0e0e0;
         }
 
-        .history-table tr:hover {
+        .price-table tr:hover {
             background: #f8f9fa;
-        }
-
-        .price-up {
-            color: #dc2626;
-            font-weight: 600;
         }
 
         .price-down {
@@ -381,26 +338,6 @@
             letter-spacing: 1px;
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 12px;
-        }
-
         .error-message {
             background: #f8d7da;
             color: #721c24;
@@ -410,10 +347,22 @@
             text-align: center;
         }
 
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .no-data i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
         @media (max-width: 768px) {
             .dashboard { grid-template-columns: 1fr; }
             .price-value { font-size: 42px; }
-            .history-table th, .history-table td { padding: 8px 10px; font-size: 12px; }
+            .price-table th, .price-table td { padding: 8px 10px; font-size: 12px; }
             .stats-footer { gap: 20px; }
             .stat-value { font-size: 22px; }
         }
@@ -434,6 +383,16 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+
+        .range-badge {
+            background: #e8f4f8;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #2c5364;
+            margin-top: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -444,22 +403,33 @@
                 <h1>Baani Diesel Price Dashboard</h1>
             </div>
             <div class="subtitle">
-                Date-Wise Diesel Price For Punjab (Patiala) & Rajasthan (Hanumangarh) update by Baani MIS Team
+                Updated by Baani MIS Team
                 <div class="badge"><i class="fas fa-sync-alt"></i> Live from Google Sheets</div>
             </div>
         </div>
 
         <div class="date-card">
-            <div class="date-controls">
+            <div class="date-range-group">
                 <div class="input-group">
-                    <label><i class="far fa-calendar"></i> Select Date</label>
-                    <input type="date" id="dateSelector">
+                    <label><i class="far fa-calendar-alt"></i> From Date</label>
+                    <input type="date" id="fromDate">
+                </div>
+                <div class="input-group">
+                    <label><i class="far fa-calendar-alt"></i> To Date</label>
+                    <input type="date" id="toDate">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-chart-line"></i> View Type</label>
+                    <select id="viewType">
+                        <option value="single">Single Date View</option>
+                        <option value="range" selected>Date Range View</option>
+                    </select>
                 </div>
                 <button class="btn-primary" onclick="loadData()">
-                    <i class="fas fa-search"></i> View Details
+                    <i class="fas fa-search"></i> View
                 </button>
                 <button class="btn-primary" onclick="fetchLiveData()" style="background: linear-gradient(135deg, #52b788 0%, #2d6a4f 100%);">
-                    <i class="fas fa-sync-alt"></i> Refresh from Sheet
+                    <i class="fas fa-sync-alt"></i> Refresh
                 </button>
             </div>
         </div>
@@ -488,40 +458,41 @@
             </div>
         </div>
 
-        <div class="history-section">
-            <h3><i class="fas fa-chart-line"></i> Last 7 Days Price History</h3>
-            <div class="history-table-wrapper">
-                <table class="history-table" id="historyTable">
+        <div class="range-section">
+            <h3><i class="fas fa-table"></i> Price History <span id="dateRangeLabel">(Select date range above)</span></h3>
+            <div class="table-wrapper">
+                <table class="price-table" id="priceTable">
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Punjab (Patiala) Price (₹/L)</th>
-                            <th>Rajasthan (Hanumangarh) Price (₹/L)</th>
+                            <th>Punjab (Patiala) ₹/L</th>
+                            <th>Rajasthan (Hanumangarh) ₹/L</th>
                             <th>Difference</th>
                             <th>Cheaper State</th>
                         </tr>
                     </thead>
-                    <tbody id="historyTableBody">
-                        <tr><td colspan="5" style="text-align:center;">Select a date to load history</td></tr>
+                    <tbody id="priceTableBody">
+                        <tr><td colspan="5" style="text-align:center;">Select date range and click View</td></tr>
                     </tbody>
                 </table>
             </div>
+            <div class="range-badge" id="rangeSummary"></div>
         </div>
 
         <div class="stats-footer">
             <div class="stat-item">
                 <div class="stat-value" id="avgPunjab">--</div>
-                <div class="stat-label">Punjab Last Month Average</div>
+                <div class="stat-label">Punjab Last Month Avg</div>
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="avgRajasthan">--</div>
-                <div class="stat-label">Rajasthan Last Month Average</div>
+                <div class="stat-label">Rajasthan Last Month Avg</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="rangeAvgPunjab">--</div>
+                <div class="stat-label">Selected Range Avg</div>
             </div>
         </div>
-    </div>
-
-    <div class="modal" id="imageModal" onclick="closeModal()">
-        <img id="modalImage" src="" alt="Fuel Bill">
     </div>
 
     <script>
@@ -537,7 +508,13 @@
         let punjabData = new Map();
         let isLoading = false;
         
-        document.getElementById('dateSelector').value = new Date().toISOString().split('T')[0];
+        // Set default dates (last 30 days)
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        
+        document.getElementById('toDate').value = today.toISOString().split('T')[0];
+        document.getElementById('fromDate').value = thirtyDaysAgo.toISOString().split('T')[0];
         
         document.addEventListener('DOMContentLoaded', function() {
             fetchLiveData();
@@ -547,14 +524,14 @@
             if (isLoading) return;
             isLoading = true;
             
-            showToast('Fetching live data from Google Sheets...', 'info');
+            showToast('Fetching data from Google Sheets...', 'info');
             showError('', true);
             
             try {
                 const response = await fetch(GOOGLE_SHEETS_API_URL);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 
                 const data = await response.json();
@@ -566,59 +543,92 @@
                 if (data.punjab && Array.isArray(data.punjab)) {
                     data.punjab.forEach(item => {
                         punjabData.set(item.date, {
-                            price: item.price,
-                            image: (typeof item.image === 'string' && item.image.startsWith('http')) ? item.image : null
+                            price: item.price
                         });
                     });
-                    document.getElementById('punjabUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
                 }
                 
                 // Load Rajasthan data
                 if (data.rajasthan && Array.isArray(data.rajasthan)) {
                     data.rajasthan.forEach(item => {
                         rajasthanData.set(item.date, {
-                            price: item.price,
-                            image: (typeof item.image === 'string' && item.image.startsWith('http')) ? item.image : null
+                            price: item.price
                         });
                     });
-                    document.getElementById('rajasthanUpdateTime').innerHTML = `<i class="far fa-clock"></i> Updated: ${new Date().toLocaleTimeString()}`;
                 }
                 
                 if (rajasthanData.size === 0 && punjabData.size === 0) {
-                    throw new Error('No data found. Check sheet has tabs "Punjab" and "Rajasthan" with data.');
+                    throw new Error('No data found. Check sheet tabs "Punjab" and "Rajasthan"');
                 }
                 
-                showToast(`Loaded ${punjabData.size} Punjab records & ${rajasthanData.size} Rajasthan records`, 'success');
+                // Find latest common date
+                const latestDate = findLatestCommonDate();
+                if (latestDate) {
+                    document.getElementById('fromDate').value = getDateString(thirtyDaysAgo);
+                    document.getElementById('toDate').value = latestDate;
+                }
+                
+                document.getElementById('punjabUpdateTime').innerHTML = `<i class="far fa-clock"></i> ${punjabData.size} records`;
+                document.getElementById('rajasthanUpdateTime').innerHTML = `<i class="far fa-clock"></i> ${rajasthanData.size} records`;
+                
+                showToast(`Loaded ${punjabData.size} Punjab & ${rajasthanData.size} Rajasthan records`, 'success');
                 loadData();
                 
             } catch (error) {
-                console.error('Error fetching data:', error);
-                showError(`Failed to load data: ${error.message}`, false);
-                showToast('Failed to load data. Check console.', 'error');
+                console.error('Error:', error);
+                showError(`Failed: ${error.message}`, false);
             } finally {
                 isLoading = false;
             }
         }
         
+        function findLatestCommonDate() {
+            const punjabDates = Array.from(punjabData.keys()).sort().reverse();
+            for (const date of punjabDates) {
+                if (rajasthanData.has(date)) {
+                    return date;
+                }
+            }
+            return punjabDates[0] || null;
+        }
+        
+        function getDateString(date) {
+            return date.toISOString().split('T')[0];
+        }
+        
         function loadData() {
-            const selectedDate = document.getElementById('dateSelector').value;
+            const viewType = document.getElementById('viewType').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
             
-            if (!selectedDate) {
-                showError('Please select a date', false);
+            if (!fromDate || !toDate) {
+                showError('Please select both from and to dates', false);
                 return;
             }
             
             if (rajasthanData.size === 0 && punjabData.size === 0) {
-                showError('No data loaded. Click "Refresh from Sheet" first.', false);
+                showError('No data loaded. Click Refresh first.', false);
                 return;
             }
             
             showError('', true);
             
-            displayDataForState('punjab', selectedDate, punjabData);
-            displayDataForState('rajasthan', selectedDate, rajasthanData);
-            loadLast7DaysHistory(selectedDate);
-            updateLastMonthAverage(selectedDate);
+            if (viewType === 'single') {
+                // Show single date view
+                displaySingleDateView(toDate);
+                loadDateRangeTable(fromDate, toDate);
+            } else {
+                // Show range in cards (latest date in range)
+                displaySingleDateView(toDate);
+                loadDateRangeTable(fromDate, toDate);
+            }
+            
+            updateLastMonthAverage(toDate);
+        }
+        
+        function displaySingleDateView(date, stateName) {
+            displayDataForState('punjab', date, punjabData);
+            displayDataForState('rajasthan', date, rajasthanData);
         }
         
         function displayDataForState(state, date, dataMap) {
@@ -627,10 +637,11 @@
             
             if (!data) {
                 contentDiv.innerHTML = `
-                    <div class="no-image">
-                        <i class="fas fa-database"></i>
-                        <p>No price data available for ${date}</p>
-                        <small>Available dates: ${getAvailableDatesPreview(dataMap)}</small>
+                    <div class="price-section">
+                        <div class="price-label">Diesel Price</div>
+                        <div class="price-value">--</div>
+                        <div class="price-unit">per litre</div>
+                        <div style="margin-top: 15px; color: #999;">No data for ${date}</div>
                     </div>
                 `;
                 return;
@@ -651,47 +662,6 @@
                 }
             }
             
-            // FIXED: Safe image handling - tries multiple URL formats
-            let imageHtml = '';
-            let imageUrl = null;
-            
-            if (data.image && typeof data.image === 'string') {
-                // Clean the URL (remove any formula remnants)
-                let cleanUrl = data.image.trim();
-                
-                // Extract URL from =IMAGE() if present
-                if (cleanUrl.includes('=IMAGE')) {
-                    const match = cleanUrl.match(/=IMAGE\("([^"]+)"\)/);
-                    if (match && match[1]) {
-                        cleanUrl = match[1];
-                    }
-                }
-                
-                // Extract URL from VLOOKUP result if it contains HTTP
-                if (cleanUrl.includes('http')) {
-                    const httpMatch = cleanUrl.match(/(https?:\/\/[^\s"']+)/);
-                    if (httpMatch) {
-                        cleanUrl = httpMatch[1];
-                    }
-                }
-                
-                // Validate URL
-                if (cleanUrl.startsWith('http')) {
-                    imageUrl = cleanUrl;
-                }
-            }
-            
-            if (imageUrl) {
-                imageHtml = `<img src="${imageUrl}" class="fuel-station-img" onclick="openModal('${imageUrl}')" onerror="console.log('Image failed:', this.src); this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><p>Image failed to load<br><small>Please check URL in Column C</small></p></div>'">`;
-            } else {
-                imageHtml = `<div class="no-image">
-                    <i class="fas fa-receipt"></i>
-                    <p>No bill/picture uploaded for ${date}</p>
-                    <small>Add image URL in Column C of your Google Sheet</small>
-                    <br><small>Format: https://example.com/image.jpg</small>
-                </div>`;
-            }
-            
             contentDiv.innerHTML = `
                 <div class="price-section">
                     <div class="price-label">Diesel Price</div>
@@ -699,66 +669,101 @@
                     <div class="price-unit">per litre</div>
                     ${trendHtml}
                 </div>
-                <div class="image-section">
-                    <h4><i class="fas fa-camera"></i> Fuel Station Bill/Picture</h4>
-                    <div class="image-container">
-                        ${imageHtml}
-                    </div>
-                </div>
             `;
         }
         
-        function loadLast7DaysHistory(selectedDate) {
-            const dates = getLast7Days(selectedDate);
-            const tbody = document.getElementById('historyTableBody');
+        function loadDateRangeTable(fromDate, toDate) {
+            const tbody = document.getElementById('priceTableBody');
+            const allDates = getAllDatesInRange(fromDate, toDate);
+            
+            // Filter dates that exist in either dataset
+            const availableDates = allDates.filter(date => 
+                punjabData.has(date) || rajasthanData.has(date)
+            );
+            
+            if (availableDates.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data"><i class="fas fa-database"></i><br>No data available in selected range</td></tr>';
+                document.getElementById('rangeSummary').innerHTML = 'No data found for selected date range';
+                document.getElementById('rangeAvgPunjab').innerHTML = '—';
+                return;
+            }
             
             let rows = '';
+            let punjabPricesInRange = [];
+            let rajasthanPricesInRange = [];
             
-            for (const date of dates) {
+            for (const date of availableDates) {
                 const punjab = punjabData.get(date);
                 const rajasthan = rajasthanData.get(date);
                 
                 const punjabPrice = punjab ? punjab.price : null;
                 const rajasthanPrice = rajasthan ? rajasthan.price : null;
                 
+                if (punjabPrice) punjabPricesInRange.push(punjabPrice);
+                if (rajasthanPrice) rajasthanPricesInRange.push(rajasthanPrice);
+                
                 let punjabDisplay = punjabPrice ? `₹${punjabPrice.toFixed(2)}` : '—';
                 let rajasthanDisplay = rajasthanPrice ? `₹${rajasthanPrice.toFixed(2)}` : '—';
                 let diffDisplay = '—';
                 let cheaperDisplay = '—';
+                let cheaperClass = '';
                 
                 if (punjabPrice && rajasthanPrice) {
                     const diff = Math.abs(punjabPrice - rajasthanPrice).toFixed(2);
                     diffDisplay = `₹${diff}`;
-                    cheaperDisplay = punjabPrice < rajasthanPrice ? 'Punjab 🌾' : (rajasthanPrice < punjabPrice ? 'Rajasthan 🏜️' : 'Equal');
+                    cheaperDisplay = punjabPrice < rajasthanPrice ? 'Punjab ✓' : (rajasthanPrice < punjabPrice ? 'Rajasthan ✓' : 'Equal');
+                    cheaperClass = punjabPrice < rajasthanPrice ? 'price-down' : (rajasthanPrice < punjabPrice ? 'price-down' : '');
                 }
                 
                 rows += `
                     <tr>
                         <td><strong>${formatDisplayDate(date)}</strong></td>
-                        <td class="${punjabPrice && rajasthanPrice && punjabPrice < rajasthanPrice ? 'price-down' : ''}">${punjabDisplay}</td>
-                        <td class="${punjabPrice && rajasthanPrice && rajasthanPrice < punjabPrice ? 'price-down' : ''}">${rajasthanDisplay}</td>
+                        <td>${punjabDisplay}</td>
+                        <td>${rajasthanDisplay}</td>
                         <td>${diffDisplay}</td>
-                        <td>${cheaperDisplay}</td>
+                        <td class="${cheaperClass}">${cheaperDisplay}</td>
                     </tr>
                 `;
             }
             
             tbody.innerHTML = rows;
+            
+            // Calculate range average
+            const avgPunjabRange = punjabPricesInRange.length > 0 ? 
+                (punjabPricesInRange.reduce((a,b) => a+b, 0) / punjabPricesInRange.length).toFixed(2) : '—';
+            const avgRajasthanRange = rajasthanPricesInRange.length > 0 ? 
+                (rajasthanPricesInRange.reduce((a,b) => a+b, 0) / rajasthanPricesInRange.length).toFixed(2) : '—';
+            
+            document.getElementById('rangeAvgPunjab').innerHTML = avgPunjabRange !== '—' ? `₹${avgPunjabRange}` : '—';
+            document.querySelector('#rangeAvgPunjab').parentElement.querySelector('.stat-label').innerHTML = `Range Avg (${availableDates.length} days)`;
+            
+            // Update summary
+            const startDate = formatDisplayDate(availableDates[0]);
+            const endDate = formatDisplayDate(availableDates[availableDates.length - 1]);
+            document.getElementById('rangeSummary').innerHTML = `Showing ${availableDates.length} days from ${startDate} to ${endDate}`;
+            document.getElementById('dateRangeLabel').innerHTML = `(${availableDates.length} records)`;
+        }
+        
+        function getAllDatesInRange(fromDate, toDate) {
+            const dates = [];
+            const start = new Date(fromDate);
+            const end = new Date(toDate);
+            
+            for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+                dates.push(date.toISOString().split('T')[0]);
+            }
+            return dates;
         }
         
         function updateLastMonthAverage(selectedDate) {
-            // Get previous month from selected date
             const currentDate = new Date(selectedDate);
             const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-            const lastMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
-            
             const lastMonthYear = lastMonth.getFullYear();
             const lastMonthMonth = lastMonth.getMonth();
             
             let punjabPrices = [];
             let rajasthanPrices = [];
             
-            // Iterate through all data and filter for last month
             for (const [date, data] of punjabData) {
                 const dateObj = new Date(date);
                 if (dateObj.getFullYear() === lastMonthYear && dateObj.getMonth() === lastMonthMonth) {
@@ -781,23 +786,8 @@
             
             document.getElementById('avgPunjab').innerHTML = avgPunjab !== '—' ? `₹${avgPunjab}` : '—';
             document.getElementById('avgRajasthan').innerHTML = avgRajasthan !== '—' ? `₹${avgRajasthan}` : '—';
-            
-            // Update the label with month name
-            document.querySelector('#avgPunjab').parentElement.querySelector('.stat-label').innerHTML = `Punjab ${monthLabel} ${lastMonthYear} Average`;
-            document.querySelector('#avgRajasthan').parentElement.querySelector('.stat-label').innerHTML = `Rajasthan ${monthLabel} ${lastMonthYear} Average`;
-        }
-        
-        function getLast7Days(selectedDate) {
-            const dates = [];
-            const current = new Date(selectedDate);
-            
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(current);
-                date.setDate(current.getDate() - i);
-                dates.push(date.toISOString().split('T')[0]);
-            }
-            
-            return dates;
+            document.querySelector('#avgPunjab').parentElement.querySelector('.stat-label').innerHTML = `Punjab ${monthLabel} ${lastMonthYear} Avg`;
+            document.querySelector('#avgRajasthan').parentElement.querySelector('.stat-label').innerHTML = `Rajasthan ${monthLabel} ${lastMonthYear} Avg`;
         }
         
         function getPreviousDate(dateStr) {
@@ -806,33 +796,9 @@
             return date.toISOString().split('T')[0];
         }
         
-        function getAvailableDatesPreview(dataMap) {
-            const dates = Array.from(dataMap.keys()).sort();
-            if (dates.length === 0) return 'None';
-            if (dates.length <= 5) return dates.join(', ');
-            return `${dates[0]} to ${dates[dates.length-1]} (${dates.length} days)`;
-        }
-        
         function formatDisplayDate(dateStr) {
             const date = new Date(dateStr);
-            return date.toLocaleDateString('en-IN', { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric' 
-            });
-        }
-        
-        function openModal(imageUrl) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            if (imageUrl && typeof imageUrl === 'string') {
-                modal.style.display = 'flex';
-                modalImg.src = imageUrl;
-            }
-        }
-        
-        function closeModal() {
-            document.getElementById('imageModal').style.display = 'none';
+            return date.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
         }
         
         function showError(message, clear = false) {
@@ -841,17 +807,19 @@
                 errorDiv.style.display = 'none';
                 return;
             }
-            errorDiv.innerHTML = message.replace(/\n/g, '<br>');
+            errorDiv.innerHTML = message;
             errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
         }
         
         function showToast(message, type) {
             const toast = document.createElement('div');
             toast.className = 'toast';
-            const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
-            toast.innerHTML = `${icon} ${message}`;
+            toast.innerHTML = `ℹ️ ${message}`;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
+            setTimeout(() => toast.remove(), 3000);
         }
     </script>
 </body>
